@@ -18,6 +18,8 @@
 * Authored by: Kris Henriksen <krishenriksen.work@gmail.com>
 #
 * AnberPorts-Joystick
+* Modified by dhani.novan@gmail.com
++ Load specific configuration for each content/file name (5:05 10 December 2022)
 */
 
 #include <errno.h>
@@ -45,6 +47,7 @@ struct uinput_user_dev uidev;
 
 int debug = 0;
 char quit_command[100];
+char config_file[256];
 
 // Define variables to be used for key codes
 int back_key;
@@ -2168,11 +2171,16 @@ int main(int argc, char* argv[]) {
   char inputstr[100];
   
 	// command line arguments
-	if (argc == 3) {
+	if (argc == 3 || argc == 4) {
       strcpy(quit_command, "kill -9 $(pgrep ");
 	  strcat(quit_command, argv[1]);
 	  strcat(quit_command, " )");
 
+	if (argc == 4) {
+		strcpy(config_file, argv[3]);
+	}else{
+		strcpy(config_file, "oga_controls_settings.txt");
+	}
     if (strcmp(argv[2], "anbernic") == 0) {
       back_key = 311;
       start_key = 310;
@@ -2347,7 +2355,7 @@ int main(int argc, char* argv[]) {
 
 	// parse oga_controls_settings.txt if available
 	config_option_t co;
-    if ((co = read_config_file("oga_controls_settings.txt")) != NULL) {
+    if ((co = read_config_file(config_file)) != NULL) {
 	    while(1) {
 	    	if (strcmp(co->key, "back") == 0) {
 	    		back = char_to_keycode(co->value);
